@@ -18,7 +18,7 @@ def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = False):
 
         api_endpoint = "https://api.scrapin.io/enrichment/profile"
         params = {
-            "api_key": os.environ["SCRAPING_API_KEY"],
+            "apikey": os.environ["SCRAPIN_API_KEY"],
             "linkedInUrl": linkedin_profile_url,
         }
 
@@ -35,10 +35,10 @@ def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = False):
     return data
 
 
-if __name__ == "__main__":
-    print(
-        scrape_linkedin_profile(
-            linkedin_profile_url="ttps://www.linkedin.com/in/felipe-garcia-beltramelo/",
-            mock=True,
-        ),
-    )
+# if __name__ == "__main__":
+#     print(
+#         scrape_linkedin_profile(
+#             linkedin_profile_url="https://www.linkedin.com/in/felipe-garcia-beltramelo/",
+#             mock=True,
+#         ),
+#     )

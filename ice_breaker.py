@@ -7,12 +7,57 @@ from langchain.chains import LLMChain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from third_parties.linkedin import scrape_linkedin_profile
 
+from output_parser import summary_parser
+
+from third_parties.linkedin import scrape_linkedin_profile
+from agents.linkedin_lookup_agent import lookup as linkedin_lookup_agent
+
+
+def ice_breaker_with(name: str) -> str:
+    """
+    This function takes a name as input and returns a summary and two interesting facts about the person.
+    """
+    # Use the linkedin_lookup_agent to get the LinkedIn profile URL
+    linkedin_username = linkedin_lookup_agent(name=name)
+    linkedin_data = scrape_linkedin_profile(linkedin_profile_url=linkedin_username)
+
+    summary_template = """
+
+        given the information about a person from Linkedin {information},
+        about a person I want you to create:
+        1. A short summary
+        2. two interesting facts about them
+
+        \n{format_instructions}
+    """
+
+    summary_prompt_template = PromptTemplate(
+        input_variables=["information"], 
+        template=summary_template,
+        partial_variables={
+            "format_instructions": summary_parser.get_format_instructions()
+        }
+    )
+
+    llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
+    # chain = 
+    # chain = summary_prompt_template | llm | StrOutputParser()
+
+    chain = summary_prompt_template | llm | summary_parser
+
+    res = chain.invoke(input={"information": linkedin_data})
+
+    print(res)
+
+    
+    # Scrape the Linked
 
 if __name__ == "__main__":
     load_dotenv()
-    print("Hello Langchain")
+
+    print("Ice Breaker Enter")
+    ice_breaker_with(name="felipe beltramelo")
     # os.environ['OPENIA_API_KEY']
 
     # information = """
@@ -26,26 +71,26 @@ if __name__ == "__main__":
 
     # A vida do cantor já foi retratada de várias maneiras e diversas vezes após a sua morte, seja no cinema, em livros ou em documentários televisivos.[6] A primeira delas foi em 1998, com o documentário Kurt & Courtney. Em seguida, em 2005, foi produzido o filme Last Days, um filme de gênero drama que narrava, de forma fictícia, os últimos dias de vida de Kurt. O documentário Kurt Cobain - Retrato de uma Ausência, lançado em 2006, continha entrevistas de amigos, parentes e do próprio Cobain.[7][8] Em 2006, doze anos após a sua morte, a revista Forbes listou as treze celebridades mortas que mais lucraram nos últimos doze meses do respectivo ano. O cantor ficou em primeiro lugar na lista, com ganhos estimados em cinquenta milhões de dólares estadunidenses.[9][10] Em 2014, no seu primeiro ano elegível, o cantor, junto com seus companheiros de banda, Krist Novoselic e Dave Grohl, foi admitido ao Rock and Roll Hall of Fame.[11]
     # """
-    summary_template = """
+    # summary_template = """
 
-        Dadas as informações {information} sobre uma pessoa , quero que você crie:
-        1. Um breve resumo
-        2. Dois fatos interessantes sobre ela
+    #     Dadas as informações {information} sobre uma pessoa , quero que você crie:
+    #     1. Um breve resumo
+    #     2. Dois fatos interessantes sobre ela
 
-    """
+    # """
 
-    summary_prompt_template = PromptTemplate(
-        input_variables=["information"], template=summary_template
-    )
+    # summary_prompt_template = PromptTemplate(
+    #     input_variables=["information"], template=summary_template
+    # )
 
-    llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
+    # llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
 
-    chain = summary_prompt_template | llm | StrOutputParser()
+    # chain = summary_prompt_template | llm | StrOutputParser()
 
-    linkedin_information = scrape_linkedin_profile(
-        "https://www.linkedin.com/in/felipe-garcia-beltramelo/", mock=True
-    )
+    # linkedin_information = scrape_linkedin_profile(
+    #     "https://www.linkedin.com/in/felipe-garcia-beltramelo/", mock=True
+    # )
 
-    res = chain.invoke(input={"information": linkedin_information})
+    # res = chain.invoke(input={"information": linkedin_information})
 
-    print(res)
+    # print(res)
